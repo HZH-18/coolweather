@@ -1,5 +1,6 @@
 package com.example.a15657_000.coolweather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.a15657_000.coolweather.gson.Forecast;
 import com.example.a15657_000.coolweather.gson.Weather;
+import com.example.a15657_000.coolweather.service.AutoUpdateService;
 import com.example.a15657_000.coolweather.util.HttpUtil;
 import com.example.a15657_000.coolweather.util.Utility;
 
@@ -96,7 +98,6 @@ public class WeatherActivity extends AppCompatActivity {
         String binPic = prefs.getString("bing_pic",null);
         if(binPic != null){
             Glide.with(this).load(binPic).into(bingPicImg);
-            Log.d("weatherActivity", "onCreate: +1");
         }
         else{
             loadBingPic();
@@ -146,6 +147,8 @@ public class WeatherActivity extends AppCompatActivity {
                             editor.putString("weather",responseText);
                             editor.apply();
                             myWeatherId = weather.basic.weatherId;
+                            Intent intent = new Intent(WeatherActivity.this, AutoUpdateService.class);
+                            startService(intent);
                             showWeatherInfo(weather);
                         }else {
                             Toast.makeText(MyApplication.getContext(),"获取天气信息失败",Toast.LENGTH_SHORT).show();
@@ -176,7 +179,6 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
-                        Log.d("weatherActivity", "onCreate: +2");
                     }
                 });
             }
@@ -204,7 +206,6 @@ public class WeatherActivity extends AppCompatActivity {
             infoText.setText(forecast.more.info);
             maxText.setText(forecast.temperature.max);
             minText.setText(forecast.temperature.min);
-            Log.d("forecast", "showWeatherInfo: "+forecast.date +" "+ forecast.more.info + " " + forecast.temperature.max + " " + forecast.temperature.min);
             forecastLayout.addView(view);
         }
         if(weather.aqi != null){
